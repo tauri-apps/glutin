@@ -28,7 +28,7 @@ fn main() {
         println!("{:?}", event);
         match event {
             Event::LoopDestroyed => return,
-            Event::WindowEvent { event, window_id } => match event {
+            Event::WindowEvent { event, window_id, .. } => match event {
                 WindowEvent::Resized(physical_size) => {
                     let windowed_context = ct.get_current(windows[&window_id].0).unwrap();
                     let windowed_context = windowed_context.windowed();

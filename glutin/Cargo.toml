@@ -10,18 +10,14 @@ repository = "https://github.com/rust-windowing/glutin"
 documentation = "https://docs.rs/glutin"
 edition = "2018"
 
-[package.metadata.docs.rs]
-features = ["serde"]
-
 [features]
-serde = ["winit/serde"]
-x11 = ["winit/x11", "glutin_glx_sys"]
-wayland = ["winit/wayland", "wayland-client", "wayland-egl"]
+x11 = ["glutin_glx_sys"]
+wayland = ["wayland-client", "wayland-egl"]
 default = ["x11", "wayland"]
 
 [dependencies]
 lazy_static = "1.3"
-winit = { version = "0.25", default-features = false }
+tao = { version = "0.5", default-features = false }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_glue = "0.2"

@@ -11,11 +11,11 @@ use crate::platform::windows::WindowExtWindows;
 
 use glutin_egl_sys as ffi;
 use winapi::shared::windef::{HGLRC, HWND};
-use winit;
-use winit::dpi;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::platform::windows::WindowBuilderExtWindows;
-use winit::window::{Window, WindowBuilder};
+use tao;
+use tao::dpi;
+use tao::event_loop::EventLoopWindowTarget;
+use tao::platform::windows::WindowBuilderExtWindows;
+use tao::window::{Window, WindowBuilder};
 
 use std::marker::PhantomData;
 use std::os::raw;

@@ -31,7 +31,7 @@ pub mod run_return {
         target_os = "openbsd",
         target_os = "android",
     ))]
-    pub use winit::platform::run_return::*;
+    pub use tao::platform::run_return::*;
 }
 
 use std::os::raw;

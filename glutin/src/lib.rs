@@ -94,9 +94,9 @@ mod windowed;
 
 pub use crate::context::*;
 pub use crate::windowed::*;
-pub use winit::*;
+pub use tao::*;
 
-use winit::error::OsError;
+use tao::error::OsError;
 
 use std::io;
 

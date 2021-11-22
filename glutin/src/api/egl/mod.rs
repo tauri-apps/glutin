@@ -126,7 +126,7 @@ use parking_lot::Mutex;
     target_os = "netbsd",
     target_os = "openbsd",
 ))]
-use winit::dpi;
+use tao::dpi;
 
 use std::ffi::{CStr, CString};
 use std::ops::{Deref, DerefMut};

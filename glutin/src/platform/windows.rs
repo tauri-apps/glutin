@@ -6,7 +6,7 @@ use crate::{Context, ContextCurrentState};
 pub use glutin_egl_sys::EGLContext;
 
 pub use winapi::shared::windef::HGLRC;
-pub use winit::platform::windows::*;
+pub use tao::platform::windows::*;
 
 use std::os::raw;
 

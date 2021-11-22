@@ -1,8 +1,8 @@
 use super::*;
 
 use std::marker::PhantomData;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::window::{Window, WindowBuilder};
+use tao::event_loop::EventLoopWindowTarget;
+use tao::window::{Window, WindowBuilder};
 
 /// Represents an OpenGL [`Context`] and the [`Window`] with which it is
 /// associated.
