@@ -14,10 +14,10 @@ use core_foundation::string::CFString;
 use objc::runtime::{BOOL, NO};
 
 use crate::platform::macos::WindowExtMacOS;
-use winit;
-use winit::dpi;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::window::{Window, WindowBuilder};
+use tao;
+use tao::dpi;
+use tao::event_loop::EventLoopWindowTarget;
+use tao::window::{Window, WindowBuilder};
 
 use std::ops::Deref;
 use std::os::raw;

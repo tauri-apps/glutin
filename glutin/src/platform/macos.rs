@@ -3,7 +3,7 @@
 use crate::platform::ContextTraitExt;
 use crate::{Context, ContextCurrentState};
 
-pub use winit::platform::macos::*;
+pub use tao::platform::macos::*;
 
 use std::os::raw;
 
