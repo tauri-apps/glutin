@@ -13,6 +13,9 @@ use crate::{
 };
 
 use glutin_glx_sys as ffi;
+use gtk::prelude::*;
+use gdkx11::X11Window;
+use glib::Cast;
 use tao;
 use tao::dpi;
 use tao::event_loop::EventLoopWindowTarget;
@@ -486,9 +489,12 @@ impl Context {
         };
 
         let win =
-            wb.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id).build(el)?;
+            wb.build(el)?;
+            //wb.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id).build(el)?;
 
-        let xwin = win.xlib_window().unwrap();
+        let gtkwin = win.gtk_window();
+        let gdkwin: X11Window = gtkwin.window().unwrap().downcast().unwrap();
+        let xwin = gdkwin.xid();
         // finish creating the OpenGL context
         let context = match context {
             Prototype::Glx(ctx) => X11Context::Glx(ctx.finish(xwin)?),
@@ -496,6 +502,13 @@ impl Context {
         };
 
         let context = Context::Windowed(ContextInner { xconn: Arc::clone(&xconn), context });
+
+        // TODO Fix make current and listen event
+        // let context_ = context.clone();
+        // gtkwin.connect_draw(move |_, _| unsafe {
+        //     context.make_current();
+        //     todo!()
+        // });
 
         Ok((win, context))
     }
