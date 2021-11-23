@@ -13,7 +13,7 @@ pub use glutin_egl_sys::EGLContext;
 #[cfg(feature = "x11")]
 pub use glutin_glx_sys::GLXContext;
 
-pub use winit::platform::unix::*;
+pub use tao::platform::unix::*;
 
 use std::os::raw;
 

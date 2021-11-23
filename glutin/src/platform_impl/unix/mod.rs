@@ -24,10 +24,9 @@ pub use x11::utils as x11_utils;
 
 #[cfg(feature = "x11")]
 use crate::platform::unix::x11::XConnection;
-use crate::platform::unix::EventLoopWindowTargetExtUnix;
-use winit::dpi;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::window::{Window, WindowBuilder};
+use tao::dpi;
+use tao::event_loop::EventLoopWindowTarget;
+use tao::window::{Window, WindowBuilder};
 
 use std::marker::PhantomData;
 use std::os::raw;
@@ -103,7 +102,7 @@ impl Context {
         gl_attr: &GlAttributes<&Context>,
     ) -> Result<(Window, Self), CreationError> {
         #[cfg(feature = "wayland")]
-        if el.is_wayland() {
+        {
             Context::is_compatible(&gl_attr.sharing, ContextType::Wayland)?;
 
             let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
@@ -114,7 +113,7 @@ impl Context {
                 .map(|(win, context)| (win, Context::Wayland(context)));
         }
         #[cfg(feature = "x11")]
-        if el.is_x11() {
+        {
             Context::is_compatible(&gl_attr.sharing, ContextType::X11)?;
             let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
                 Context::X11(ref ctx) => ctx,
@@ -123,7 +122,6 @@ impl Context {
             return x11::Context::new(wb, el, pf_reqs, &gl_attr)
                 .map(|(win, context)| (win, Context::X11(context)));
         }
-        panic!("glutin was not compiled with support for this display server")
     }
 
     #[inline]
@@ -143,7 +141,7 @@ impl Context {
         size: Option<dpi::PhysicalSize<u32>>,
     ) -> Result<Self, CreationError> {
         #[cfg(feature = "wayland")]
-        if el.is_wayland() {
+        {
             Context::is_compatible(&gl_attr.sharing, ContextType::Wayland)?;
             let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
                 Context::Wayland(ref ctx) => ctx,
@@ -153,7 +151,7 @@ impl Context {
                 .map(|ctx| Context::Wayland(ctx));
         }
         #[cfg(feature = "x11")]
-        if el.is_x11() {
+        {
             Context::is_compatible(&gl_attr.sharing, ContextType::X11)?;
             let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
                 Context::X11(ref ctx) => ctx,
@@ -162,7 +160,6 @@ impl Context {
             return x11::Context::new_headless(&el, pf_reqs, &gl_attr, size)
                 .map(|ctx| Context::X11(ctx));
         }
-        panic!("glutin was not compiled with support for this display server")
     }
 
     #[inline]

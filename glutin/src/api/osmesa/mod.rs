@@ -15,7 +15,7 @@ use crate::{
     Robustness,
 };
 
-use winit::dpi;
+use tao::dpi;
 
 use std::ffi::CString;
 use std::os::raw;

@@ -13,10 +13,10 @@ use crate::{
 };
 
 use glutin_glx_sys as ffi;
-use winit;
-use winit::dpi;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::window::{Window, WindowBuilder};
+use tao;
+use tao::dpi;
+use tao::event_loop::EventLoopWindowTarget;
+use tao::window::{Window, WindowBuilder};
 
 use std::ops::{Deref, DerefMut};
 use std::os::raw;

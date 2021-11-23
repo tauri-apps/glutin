@@ -13,11 +13,11 @@ edition = "2018"
 [features]
 x11 = ["glutin_glx_sys"]
 wayland = ["wayland-client", "wayland-egl"]
-default = ["x11", "wayland"]
+default = ["x11"]
 
 [dependencies]
 lazy_static = "1.3"
-tao = { version = "0.5", default-features = false }
+tao = { git = "https://github.com/tauri-apps/tao", branch = "next", version = "0.5", default-features = false }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_glue = "0.2"

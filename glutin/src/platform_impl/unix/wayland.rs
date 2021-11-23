@@ -8,10 +8,10 @@ use crate::{
 use crate::platform::unix::{EventLoopWindowTargetExtUnix, WindowExtUnix};
 use glutin_egl_sys as ffi;
 pub use wayland_client::sys::client::wl_display;
-use winit;
-use winit::dpi;
-use winit::event_loop::EventLoopWindowTarget;
-use winit::window::{Window, WindowBuilder};
+use tao;
+use tao::dpi;
+use tao::event_loop::EventLoopWindowTarget;
+use tao::window::{Window, WindowBuilder};
 
 use std::ops::Deref;
 use std::os::raw;
