@@ -31,7 +31,8 @@ fn main() {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 _ => (),
             },
-            Event::RedrawRequested(_) => {
+            //Event::RedrawRequested(_) => {
+            Event::MainEventsCleared => {
                 gl.draw_frame([0.0; 4]);
                 windowed_context.swap_buffers().unwrap();
             }

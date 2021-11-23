@@ -28,7 +28,8 @@ fn main() {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 _ => (),
             },
-            Event::RedrawRequested(_) => {
+            //TODO should use Event::RedrawRequested(_) => {
+            Event::MainEventsCleared => {
                 gl.draw_frame([1.0, 0.5, 0.7, 1.0]);
                 windowed_context.swap_buffers().unwrap();
             }
