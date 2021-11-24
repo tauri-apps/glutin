@@ -488,12 +488,16 @@ impl Context {
             }
         };
 
-        let win =
-            wb.build(el)?;
-            //wb.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id).build(el)?;
-
+        let win = wb.build(el)?;
         let gtkwin = win.gtk_window();
-        let gdkwin: X11Window = gtkwin.window().unwrap().downcast().unwrap();
+        // Gtk application window can only contain one widget at a time.
+        // In tao, we add a GtkBox to pack menu bar. So we check if
+        // there's a box widget here.
+        let vbox = gtkwin.children().pop().unwrap().downcast::<gtk::Box>().unwrap();
+        let area = gtk::DrawingAreaBuilder::new().app_paintable(true).build();
+        vbox.pack_start(&area, true, true, 0);
+        //area.connect_render(|_, _| {});
+        let gdkwin: X11Window = area.window().unwrap().downcast().unwrap();
         let xwin = gdkwin.xid();
         // finish creating the OpenGL context
         let context = match context {
@@ -502,6 +506,8 @@ impl Context {
         };
 
         let context = Context::Windowed(ContextInner { xconn: Arc::clone(&xconn), context });
+
+        //gtkwin.show_all();
 
         // TODO Fix make current and listen event
         // let context_ = context.clone();

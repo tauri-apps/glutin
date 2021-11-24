@@ -6,94 +6,29 @@
     target_os = "openbsd",
 ))]
 
-#[cfg(not(any(feature = "x11", feature = "wayland")))]
-compile_error!("at least one of the 'x11' or 'wayland' features must be enabled");
-
-mod wayland;
-mod x11;
-
-#[cfg(feature = "x11")]
-use self::x11::X11Context;
-use crate::api::osmesa;
 use crate::{
     Api, ContextCurrentState, ContextError, CreationError, GlAttributes, NotCurrent, PixelFormat,
     PixelFormatRequirements, Rect,
 };
-#[cfg(feature = "x11")]
-pub use x11::utils as x11_utils;
 
-#[cfg(feature = "x11")]
-use crate::platform::unix::x11::XConnection;
 use tao::dpi;
 use tao::event_loop::EventLoopWindowTarget;
 use tao::window::{Window, WindowBuilder};
+use tao::platform::unix::*;
+use gtk::prelude::*;
+use gtk::GLArea;
 
 use std::marker::PhantomData;
 use std::os::raw;
-#[cfg(feature = "x11")]
-use std::sync::Arc;
 
 /// Context handles available on Unix-like platforms.
-#[derive(Clone, Debug)]
-pub enum RawHandle {
-    /// Context handle for a glx context.
-    #[cfg(feature = "x11")]
-    Glx(glutin_glx_sys::GLXContext),
-    /// Context handle for a egl context.
-    Egl(glutin_egl_sys::EGLContext),
-}
+pub type RawHandle = GLArea;
 
 #[derive(Debug)]
-pub enum ContextType {
-    #[cfg(feature = "x11")]
-    X11,
-    #[cfg(feature = "wayland")]
-    Wayland,
-    OsMesa,
-}
+pub struct Context(GLArea);
 
-#[derive(Debug)]
-pub enum Context {
-    #[cfg(feature = "x11")]
-    X11(x11::Context),
-    #[cfg(feature = "wayland")]
-    Wayland(wayland::Context),
-    OsMesa(osmesa::OsMesaContext),
-}
 
 impl Context {
-    fn is_compatible(c: &Option<&Context>, ct: ContextType) -> Result<(), CreationError> {
-        if let Some(c) = *c {
-            match ct {
-                ContextType::OsMesa => match *c {
-                    Context::OsMesa(_) => Ok(()),
-                    _ => {
-                        let msg = "Cannot share an OSMesa context with a non-OSMesa context";
-                        return Err(CreationError::PlatformSpecific(msg.into()));
-                    }
-                },
-                #[cfg(feature = "x11")]
-                ContextType::X11 => match *c {
-                    Context::X11(_) => Ok(()),
-                    _ => {
-                        let msg = "Cannot share an X11 context with a non-X11 context";
-                        return Err(CreationError::PlatformSpecific(msg.into()));
-                    }
-                },
-                #[cfg(feature = "wayland")]
-                ContextType::Wayland => match *c {
-                    Context::Wayland(_) => Ok(()),
-                    _ => {
-                        let msg = "Cannot share a Wayland context with a non-Wayland context";
-                        return Err(CreationError::PlatformSpecific(msg.into()));
-                    }
-                },
-            }
-        } else {
-            Ok(())
-        }
-    }
-
     #[inline]
     pub fn new_windowed<T>(
         wb: WindowBuilder,
@@ -101,27 +36,21 @@ impl Context {
         pf_reqs: &PixelFormatRequirements,
         gl_attr: &GlAttributes<&Context>,
     ) -> Result<(Window, Self), CreationError> {
-        #[cfg(feature = "wayland")]
-        {
-            Context::is_compatible(&gl_attr.sharing, ContextType::Wayland)?;
+        let window = wb.build(el)?;
+        let gtkwin = window.gtk_window();
 
-            let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
-                Context::Wayland(ref ctx) => ctx,
-                _ => unreachable!(),
-            });
-            return wayland::Context::new(wb, el, pf_reqs, &gl_attr)
-                .map(|(win, context)| (win, Context::Wayland(context)));
-        }
-        #[cfg(feature = "x11")]
-        {
-            Context::is_compatible(&gl_attr.sharing, ContextType::X11)?;
-            let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
-                Context::X11(ref ctx) => ctx,
-                _ => unreachable!(),
-            });
-            return x11::Context::new(wb, el, pf_reqs, &gl_attr)
-                .map(|(win, context)| (win, Context::X11(context)));
-        }
+        // TODO config of pf_reqs and gl_attr
+        let area = GLArea::new();
+        let vbox = gtkwin.children().pop().unwrap().downcast::<gtk::Box>().unwrap();
+        vbox.pack_start(&area, true, true, 0);
+        area.grab_focus();
+        gtkwin.show_all();
+
+        gl_loader::init_gl();
+        
+        let context = Context(area);
+        
+        Ok((window, context))
     }
 
     #[inline]
@@ -140,165 +69,72 @@ impl Context {
         gl_attr: &GlAttributes<&Context>,
         size: Option<dpi::PhysicalSize<u32>>,
     ) -> Result<Self, CreationError> {
-        #[cfg(feature = "wayland")]
-        {
-            Context::is_compatible(&gl_attr.sharing, ContextType::Wayland)?;
-            let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
-                Context::Wayland(ref ctx) => ctx,
-                _ => unreachable!(),
-            });
-            return wayland::Context::new_headless(&el, pf_reqs, &gl_attr, size)
-                .map(|ctx| Context::Wayland(ctx));
-        }
-        #[cfg(feature = "x11")]
-        {
-            Context::is_compatible(&gl_attr.sharing, ContextType::X11)?;
-            let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
-                Context::X11(ref ctx) => ctx,
-                _ => unreachable!(),
-            });
-            return x11::Context::new_headless(&el, pf_reqs, &gl_attr, size)
-                .map(|ctx| Context::X11(ctx));
-        }
+        todo!()
     }
 
     #[inline]
     pub unsafe fn make_current(&self) -> Result<(), ContextError> {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.make_current(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.make_current(),
-            Context::OsMesa(ref ctx) => ctx.make_current(),
-        }
+        self.0.make_current();
+        Ok(())
     }
 
     #[inline]
     pub unsafe fn make_not_current(&self) -> Result<(), ContextError> {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.make_not_current(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.make_not_current(),
-            Context::OsMesa(ref ctx) => ctx.make_not_current(),
-        }
+        todo!()
     }
 
     #[inline]
     pub fn is_current(&self) -> bool {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.is_current(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.is_current(),
-            Context::OsMesa(ref ctx) => ctx.is_current(),
-        }
+        todo!()
     }
 
     #[inline]
     pub fn get_api(&self) -> Api {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.get_api(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.get_api(),
-            Context::OsMesa(ref ctx) => ctx.get_api(),
-        }
+        todo!()
     }
 
     #[inline]
     pub unsafe fn raw_handle(&self) -> RawHandle {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => match *ctx.raw_handle() {
-                X11Context::Glx(ref ctx) => RawHandle::Glx(ctx.raw_handle()),
-                X11Context::Egl(ref ctx) => RawHandle::Egl(ctx.raw_handle()),
-            },
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => RawHandle::Egl(ctx.raw_handle()),
-            Context::OsMesa(ref ctx) => RawHandle::Egl(ctx.raw_handle()),
-        }
-    }
-
-    #[inline]
-    pub unsafe fn get_egl_display(&self) -> Option<*const raw::c_void> {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.get_egl_display(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.get_egl_display(),
-            _ => None,
-        }
+        self.0.clone()
     }
 
     #[inline]
     pub fn resize(&self, width: u32, height: u32) {
-        #![allow(unused)]
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(_) => (),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.resize(width, height),
-            _ => unreachable!(),
-        }
+        // TODO
     }
 
     #[inline]
     pub fn get_proc_address(&self, addr: &str) -> *const core::ffi::c_void {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.get_proc_address(addr),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.get_proc_address(addr),
-            Context::OsMesa(ref ctx) => ctx.get_proc_address(addr),
-        }
+        gl_loader::get_proc_address(addr) as *const _
     }
 
     #[inline]
     pub fn swap_buffers(&self) -> Result<(), ContextError> {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.swap_buffers(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.swap_buffers(),
-            _ => unreachable!(),
-        }
+        // GTK swaps the buffers after each "render" signal itself
+        self.0.queue_render();
+        Ok(())
     }
 
     #[inline]
     pub fn swap_buffers_with_damage(&self, rects: &[Rect]) -> Result<(), ContextError> {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.swap_buffers_with_damage(rects),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.swap_buffers_with_damage(rects),
-            _ => unreachable!(),
-        }
+        todo!()
     }
 
     #[inline]
     pub fn swap_buffers_with_damage_supported(&self) -> bool {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.swap_buffers_with_damage_supported(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.swap_buffers_with_damage_supported(),
-            _ => unreachable!(),
-        }
+        todo!()
     }
 
     #[inline]
     pub fn get_pixel_format(&self) -> PixelFormat {
-        match *self {
-            #[cfg(feature = "x11")]
-            Context::X11(ref ctx) => ctx.get_pixel_format(),
-            #[cfg(feature = "wayland")]
-            Context::Wayland(ref ctx) => ctx.get_pixel_format(),
-            _ => unreachable!(),
-        }
+        todo!()
     }
 }
 
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
+
+/* TODO
 /// A unix-specific extension to the [`ContextBuilder`] which allows building
 /// unix-specific headless contexts.
 ///
@@ -455,3 +291,4 @@ impl<'a, T: ContextCurrentState> RawContextExt for crate::ContextBuilder<'a, T> 
             .map(|context| crate::RawContext { context, window: () })
     }
 }
+*/

@@ -7,7 +7,7 @@
 ))]
 
 use crate::platform::ContextTraitExt;
-pub use crate::platform_impl::{HeadlessContextExt, RawContextExt, RawHandle};
+pub use crate::platform_impl::{RawHandle};
 use crate::{Context, ContextCurrentState};
 pub use glutin_egl_sys::EGLContext;
 #[cfg(feature = "x11")]
@@ -27,6 +27,6 @@ impl<T: ContextCurrentState> ContextTraitExt for Context<T> {
 
     #[inline]
     unsafe fn get_egl_display(&self) -> Option<*const raw::c_void> {
-        self.context.get_egl_display()
+        todo!()
     }
 }
