@@ -16,9 +16,20 @@ fn main() {
 
     let windowed_context = unsafe { windowed_context.make_current().unwrap() };
 
-    println!("Pixel format of the window's GL context: {:?}", windowed_context.get_pixel_format());
+    // TODO println!("Pixel format of the window's GL context: {:?}", windowed_context.get_pixel_format());
 
     let gl = support::load(&windowed_context.context());
+
+    #[cfg(target_os = "linux")]
+    {
+        use glutin::platform::*;
+        use gtk::prelude::*;
+        let area = unsafe { windowed_context.raw_handle() };
+        area.connect_render(move |_, _| {
+            gl.draw_frame([0.0; 4]);
+            gtk::Inhibit(false)
+        });
+    }
 
     el.run(move |event, _, control_flow| {
         println!("{:?}", event);
@@ -31,8 +42,8 @@ fn main() {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 _ => (),
             },
-            //Event::RedrawRequested(_) => {
-            Event::MainEventsCleared => {
+            #[cfg(not(target_os = "linux"))]
+            Event::RedrawRequested(_) => {
                 gl.draw_frame([0.0; 4]);
                 windowed_context.swap_buffers().unwrap();
             }

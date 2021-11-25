@@ -16,7 +16,7 @@ use tao::event_loop::EventLoopWindowTarget;
 use tao::window::{Window, WindowBuilder};
 use tao::platform::unix::*;
 use gtk::prelude::*;
-use gtk::GLArea;
+use gtk::{GLArea, GLAreaBuilder};
 
 use std::marker::PhantomData;
 use std::os::raw;
@@ -40,7 +40,7 @@ impl Context {
         let gtkwin = window.gtk_window();
 
         // TODO config of pf_reqs and gl_attr
-        let area = GLArea::new();
+        let area = GLAreaBuilder::new().has_alpha(true).build();
         let vbox = gtkwin.children().pop().unwrap().downcast::<gtk::Box>().unwrap();
         vbox.pack_start(&area, true, true, 0);
         area.grab_focus();
