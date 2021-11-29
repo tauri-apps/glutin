@@ -13,6 +13,7 @@ mod this_example {
     use super::support;
     use glutin::event::{Event, WindowEvent};
     use glutin::event_loop::{ControlFlow, EventLoop};
+    use glutin::platform::ContextTraitExt;
     use glutin::window::WindowBuilder;
     use glutin::ContextBuilder;
     use std::io::Write;
@@ -29,7 +30,7 @@ mod this_example {
             true
         });
 
-        let (raw_context, el) = {
+        let (raw_context, el, _win) = {
             let el = EventLoop::new();
             let mut wb = WindowBuilder::new().with_title("A fantastic window!");
 
@@ -39,51 +40,13 @@ mod this_example {
 
             #[cfg(target_os = "linux")]
             unsafe {
-                use glutin::platform::unix::{
-                    EventLoopWindowTargetExtUnix, RawContextExt, WindowExtUnix,
-                };
+                use glutin::platform::unix::RawContextExt;
 
-                if el.is_wayland() {
-                    let win = wb.build(&el).unwrap();
-                    let size = win.inner_size();
-                    let (width, height): (u32, u32) = size.into();
+                let win = wb.build(&el).unwrap();
+                let raw_context =
+                    ContextBuilder::new().build_raw_context(&win).unwrap();
 
-                    let display_ptr = win.wayland_display().unwrap() as *const _;
-                    let surface = win.wayland_surface().unwrap();
-
-                    let raw_context = ContextBuilder::new()
-                        .build_raw_wayland_context(display_ptr, surface, width, height)
-                        .unwrap();
-
-                    (raw_context, el)
-                } else {
-                    if transparency {
-                        unimplemented!(
-                            r#"
-Users should make sure that the window gets built with an x11 visual that
-supports transparency. Winit does not currently do this by default for x11
-because it is not provided with enough details to make a good choice. Normally
-glutin decides this for winit, but this is not the case for raw contexts.
-
-Depending on the default order of the x11 visuals, transparency may by sheer
-luck work for you.
-
-Such a task of selecting the appropriate x11 visual is outside the limited
-scope of the glutin examples. Implementing it would likely require a lot of
-platform specific egl/glx/x11 calls or exposing a lot of glutin's internals.
-File a PR if you are interested in implementing the latter.
-                        "#
-                        )
-                    }
-
-                    let win = wb.build(&el).unwrap();
-                    let xconn = el.xlib_xconnection().unwrap();
-                    let xwindow = win.xlib_window().unwrap();
-                    let raw_context =
-                        ContextBuilder::new().build_raw_x11_context(xconn, xwindow).unwrap();
-
-                    (raw_context, el)
-                }
+                (raw_context, el, win)
             }
 
             #[cfg(target_os = "windows")]
@@ -94,19 +57,32 @@ File a PR if you are interested in implementing the latter.
                 let hwnd = win.hwnd();
                 let raw_context = ContextBuilder::new().build_raw_context(hwnd).unwrap();
 
-                (raw_context, el)
+                (raw_context, el, win)
             }
         };
 
         let raw_context = unsafe { raw_context.make_current().unwrap() };
 
-        println!("Pixel format of the window's GL context: {:?}", raw_context.get_pixel_format());
+        //println!("Pixel format of the window's GL context: {:?}", raw_context.get_pixel_format());
 
         let gl = support::load(&*raw_context);
 
+        #[cfg(target_os = "linux")]
+        {
+            let glarea = unsafe { raw_context.raw_handle() };
+
+            use gtk::prelude::*;
+            glarea.connect_render(move |_, _| {
+                gl.draw_frame(if transparency { [0.0; 4] } else { [1.0, 0.5, 0.7, 1.0] });
+                gtk::Inhibit(false)
+            });
+        }
+
         let mut raw_context = Takeable::new(raw_context);
+
+
         el.run(move |event, _, control_flow| {
-            println!("el {:?}", event);
+            println!("{:?}", event);
             *control_flow = ControlFlow::Wait;
 
             match event {
@@ -119,6 +95,7 @@ File a PR if you are interested in implementing the latter.
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     _ => (),
                 },
+                #[cfg(not(target_os = "linux"))]
                 Event::RedrawRequested(_) => {
                     gl.draw_frame(if transparency { [0.0; 4] } else { [1.0, 0.5, 0.7, 1.0] });
                     raw_context.swap_buffers().unwrap();

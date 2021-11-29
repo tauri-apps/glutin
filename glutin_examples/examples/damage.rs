@@ -43,8 +43,16 @@ fn main() {
 
     let mut color = Color::new();
 
-    gl.draw_frame([color.red, color.green, color.blue, 1.0]);
-    windowed_context.swap_buffers().unwrap();
+        use glutin::platform::*;
+        use gtk::prelude::*;
+        let area = unsafe { windowed_context.raw_handle() };
+        area.connect_render(move |_, _| {
+            gl.draw_frame([color.red, color.green, color.blue, 1.0]);
+            gtk::Inhibit(false)
+        });
+
+    // gl.draw_frame([color.red, color.green, color.blue, 1.0]);
+    // windowed_context.swap_buffers().unwrap();
 
     el.run(move |event, _, control_flow| {
         println!("{:?}", event);
@@ -69,20 +77,21 @@ fn main() {
                     // composited to screen.
                     //
                     // Panics if damage is not supported due to the unwrap.
-                    color = color.next();
-                    gl.draw_frame([color.red, color.green, color.blue, 1.0]);
-                    if windowed_context.swap_buffers_with_damage_supported() {
-                        windowed_context
-                            .swap_buffers_with_damage(&[Rect {
-                                x: 0,
-                                y: 0,
-                                height: 100,
-                                width: 100,
-                            }])
-                            .unwrap();
-                    } else {
-                        windowed_context.swap_buffers().unwrap();
-                    }
+                    //
+                    // color = color.next();
+                    // gl.draw_frame([color.red, color.green, color.blue, 1.0]);
+                    // if windowed_context.swap_buffers_with_damage_supported() {
+                    //     windowed_context
+                    //         .swap_buffers_with_damage(&[Rect {
+                    //             x: 0,
+                    //             y: 0,
+                    //             height: 100,
+                    //             width: 100,
+                    //         }])
+                    //         .unwrap();
+                    // } else {
+                    //     windowed_context.swap_buffers().unwrap();
+                    // }
                 }
                 _ => (),
             },
