@@ -1,11 +1,6 @@
 #![cfg(any(
     target_os = "windows",
-    target_os = "linux",
     target_os = "android",
-    target_os = "dragonfly",
-    target_os = "freebsd",
-    target_os = "netbsd",
-    target_os = "openbsd",
 ))]
 #![allow(unused_variables)]
 

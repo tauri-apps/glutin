@@ -15,17 +15,20 @@ use tao::dpi;
 use tao::event_loop::EventLoopWindowTarget;
 use tao::window::{Window, WindowBuilder};
 use tao::platform::unix::*;
+use gdk::GLContext;
 use gtk::prelude::*;
 use gtk::{GLArea, GLAreaBuilder};
 
 use std::marker::PhantomData;
-use std::os::raw;
 
 /// Context handles available on Unix-like platforms.
 pub type RawHandle = GLArea;
 
 #[derive(Debug)]
-pub struct Context(GLArea);
+pub struct Context {
+    inner: GLArea,
+    pf: PixelFormat,
+}
 
 
 impl Context {
@@ -36,6 +39,17 @@ impl Context {
         pf_reqs: &PixelFormatRequirements,
         gl_attr: &GlAttributes<&Context>,
     ) -> Result<(Window, Self), CreationError> {
+        let pixel_format = PixelFormat {
+            hardware_accelerated: pf_reqs.hardware_accelerated.unwrap_or(true),
+            color_bits: pf_reqs.color_bits.unwrap_or(24),
+            alpha_bits: pf_reqs.alpha_bits.unwrap_or(8),
+            depth_bits: pf_reqs.depth_bits.unwrap_or(24),
+            double_buffer: pf_reqs.double_buffer.unwrap_or(true),
+            multisampling: pf_reqs.multisampling,
+            srgb: pf_reqs.srgb,
+            stencil_bits: pf_reqs.stencil_bits.unwrap_or(8),
+            stereoscopy: pf_reqs.stereoscopy,
+        };
         let window = wb.build(el)?;
         let gtkwin = window.gtk_window();
 
@@ -48,59 +62,75 @@ impl Context {
 
         gl_loader::init_gl();
         
-        let context = Context(area);
+        let context = Context {
+            inner: area,
+            pf: pixel_format,
+        };
         
         Ok((window, context))
     }
 
     #[inline]
     pub fn new_headless<T>(
-        el: &EventLoopWindowTarget<T>,
+        _el: &EventLoopWindowTarget<T>,
         pf_reqs: &PixelFormatRequirements,
         gl_attr: &GlAttributes<&Context>,
         size: dpi::PhysicalSize<u32>,
     ) -> Result<Self, CreationError> {
-        Self::new_headless_impl(el, pf_reqs, gl_attr, Some(size))
-    }
+        let pixel_format = PixelFormat {
+            hardware_accelerated: pf_reqs.hardware_accelerated.unwrap_or(true),
+            color_bits: pf_reqs.color_bits.unwrap_or(24),
+            alpha_bits: pf_reqs.alpha_bits.unwrap_or(8),
+            depth_bits: pf_reqs.depth_bits.unwrap_or(24),
+            double_buffer: pf_reqs.double_buffer.unwrap_or(true),
+            multisampling: pf_reqs.multisampling,
+            srgb: pf_reqs.srgb,
+            stencil_bits: pf_reqs.stencil_bits.unwrap_or(8),
+            stereoscopy: pf_reqs.stereoscopy,
+        };
 
-    pub fn new_headless_impl<T>(
-        el: &EventLoopWindowTarget<T>,
-        pf_reqs: &PixelFormatRequirements,
-        gl_attr: &GlAttributes<&Context>,
-        size: Option<dpi::PhysicalSize<u32>>,
-    ) -> Result<Self, CreationError> {
-        todo!()
+        // TODO config of pf_reqs and gl_attr
+        let area = GLAreaBuilder::new().has_alpha(true).build();
+        area.grab_focus();
+        gl_loader::init_gl();
+
+        Ok(Context {
+            inner: area,
+            pf: pixel_format,
+        })
     }
 
     #[inline]
     pub unsafe fn make_current(&self) -> Result<(), ContextError> {
-        self.0.make_current();
+        self.inner.make_current();
         Ok(())
     }
 
     #[inline]
     pub unsafe fn make_not_current(&self) -> Result<(), ContextError> {
-        todo!()
+        GLContext::clear_current();
+        Ok(())
     }
 
     #[inline]
     pub fn is_current(&self) -> bool {
-        todo!()
+        self.inner.context() == GLContext::current()
     }
 
     #[inline]
     pub fn get_api(&self) -> Api {
-        todo!()
+        // TODO detect es
+        Api::OpenGl
     }
 
     #[inline]
     pub unsafe fn raw_handle(&self) -> RawHandle {
-        self.0.clone()
+        self.inner.clone()
     }
 
     #[inline]
     pub fn resize(&self, _width: u32, _height: u32) {
-        // TODO
+        // Ignored because widget will be resized automatically
     }
 
     #[inline]
@@ -111,7 +141,7 @@ impl Context {
     #[inline]
     pub fn swap_buffers(&self) -> Result<(), ContextError> {
         // GTK swaps the buffers after each "render" signal itself
-        self.0.queue_render();
+        self.inner.queue_render();
         Ok(())
     }
 
@@ -127,84 +157,12 @@ impl Context {
 
     #[inline]
     pub fn get_pixel_format(&self) -> PixelFormat {
-        todo!()
+        self.pf.clone()
     }
 }
 
 unsafe impl Send for Context {}
 unsafe impl Sync for Context {}
-
-/* TODO
-/// A unix-specific extension to the [`ContextBuilder`] which allows building
-/// unix-specific headless contexts.
-///
-/// [`ContextBuilder`]: ../../struct.ContextBuilder.html
-pub trait HeadlessContextExt {
-    /// Builds an OsMesa context.
-    ///
-    /// Errors can occur if the OpenGL [`Context`] could not be created. This
-    /// generally happens because the underlying platform doesn't support a
-    /// requested feature.
-    ///
-    /// [`Context`]: struct.Context.html
-    fn build_osmesa(
-        self,
-        size: dpi::PhysicalSize<u32>,
-    ) -> Result<crate::Context<NotCurrent>, CreationError>
-    where
-        Self: Sized;
-
-    /// Builds an EGL-surfaceless context.
-    ///
-    /// Errors can occur if the OpenGL [`Context`] could not be created. This
-    /// generally happens because the underlying platform doesn't support a
-    /// requested feature.
-    ///
-    /// [`Context`]: struct.Context.html
-    fn build_surfaceless<TE>(
-        self,
-        el: &EventLoopWindowTarget<TE>,
-    ) -> Result<crate::Context<NotCurrent>, CreationError>
-    where
-        Self: Sized;
-}
-
-impl<'a, T: ContextCurrentState> HeadlessContextExt for crate::ContextBuilder<'a, T> {
-    #[inline]
-    fn build_osmesa(
-        self,
-        size: dpi::PhysicalSize<u32>,
-    ) -> Result<crate::Context<NotCurrent>, CreationError>
-    where
-        Self: Sized,
-    {
-        let crate::ContextBuilder { pf_reqs, gl_attr } = self;
-        let gl_attr = gl_attr.map_sharing(|ctx| &ctx.context);
-        Context::is_compatible(&gl_attr.sharing, ContextType::OsMesa)?;
-        let gl_attr = gl_attr.clone().map_sharing(|ctx| match *ctx {
-            Context::OsMesa(ref ctx) => ctx,
-            _ => unreachable!(),
-        });
-        osmesa::OsMesaContext::new(&pf_reqs, &gl_attr, size)
-            .map(|context| Context::OsMesa(context))
-            .map(|context| crate::Context { context, phantom: PhantomData })
-    }
-
-    #[inline]
-    fn build_surfaceless<TE>(
-        self,
-        el: &EventLoopWindowTarget<TE>,
-    ) -> Result<crate::Context<NotCurrent>, CreationError>
-    where
-        Self: Sized,
-    {
-        let crate::ContextBuilder { pf_reqs, gl_attr } = self;
-        let gl_attr = gl_attr.map_sharing(|ctx| &ctx.context);
-        Context::new_headless_impl(el, &pf_reqs, &gl_attr, None)
-            .map(|context| crate::Context { context, phantom: PhantomData })
-    }
-}
-*/
 
 /// A unix-specific extension for the [`ContextBuilder`] which allows
 /// assembling [`RawContext<T>`]s.
@@ -234,8 +192,18 @@ impl<'a, T: ContextCurrentState> RawContextExt for crate::ContextBuilder<'a, T> 
     where
         Self: Sized,
     {
-        // let crate::ContextBuilder { pf_reqs, gl_attr } = self;
-        // let gl_attr = gl_attr.map_sharing(|ctx| &ctx.context);
+        let pixel_format = PixelFormat {
+            hardware_accelerated: true,
+            color_bits: 24,
+            alpha_bits: 8,
+            depth_bits: 24,
+            double_buffer: true,
+            multisampling: None,
+            srgb: true,
+            stencil_bits: 8,
+            stereoscopy: false,
+        };
+
         let gtkwin = win.gtk_window();
         let area = GLAreaBuilder::new().has_alpha(true).build();
         let vbox = gtkwin.children().pop().unwrap().downcast::<gtk::Box>().unwrap();
@@ -244,7 +212,7 @@ impl<'a, T: ContextCurrentState> RawContextExt for crate::ContextBuilder<'a, T> 
 
         gl_loader::init_gl();
 
-        let context = crate::Context { context: Context(area), phantom: PhantomData };
+        let context = crate::Context { context: Context { inner: area, pf: pixel_format }, phantom: PhantomData };
 
         Ok(crate::RawContext { context, window: () })
     }
