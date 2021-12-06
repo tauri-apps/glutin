@@ -11,7 +11,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-glutin = { path = "../glutin" }
+tao-glutin = { path = "../glutin" }
 takeable-option = "0.4"
 image = "0.21"
 gtk = "0.14"
