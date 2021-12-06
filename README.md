@@ -1,4 +1,8 @@
-# glutin -  OpenGL, UTilities and INput
+# tao-glutin -  OpenGL, UTilities and INput
+**This is a fork that is compatibale with `tao`. If you are looking for GL contexts working with Gtk, this fork might suit you. Otherwise, original glutin is still more recommended.**
+
+**Most platforms should still work out of the box, while Gtk on linux will have some differences. It's possible to write the gl code in event loop closure, but it will get some delays. Using `connect_render` on GLArea is still most idiomatic. Also note that pixel format request and GL attributes are not configured on Linux yet. It uses default GLArea at the moment.**
+
 A low-level library for OpenGL context creation, written in pure Rust.
 
 [![](https://img.shields.io/crates/v/glutin.svg)](https://crates.io/crates/glutin)
