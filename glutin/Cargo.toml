@@ -14,7 +14,7 @@ name = "glutin"
 
 [dependencies]
 lazy_static = "1.3"
-tao = { git = "https://github.com/tauri-apps/tao", branch = "next", version = "0.5", default-features = false }
+tao = { git = "https://github.com/tauri-apps/tao", rec = "0dd7197326fc885150f07ebc3127fd8452a36f00", version = "0.5", default-features = false }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_glue = "0.2"
@@ -51,8 +51,8 @@ parking_lot = "0.11"
 [target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "dragonfly", target_os = "netbsd", target_os = "openbsd"))'.dependencies]
 parking_lot = "0.11"
 log = "0.4"
-gtk = "0.14"
-gdk = "0.14"
-gdkx11 = "0.14"
-glib= "0.14"
+gtk = "0.15"
+gdk = "0.15"
+gdkx11 = "0.15"
+glib= "0.15"
 gl_loader = "0.1.2"

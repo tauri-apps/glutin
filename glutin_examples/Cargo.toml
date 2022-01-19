@@ -14,7 +14,7 @@ publish = false
 tao-glutin = { path = "../glutin" }
 takeable-option = "0.4"
 image = "0.21"
-gtk = "0.14"
+gtk = "0.15"
 
 [build-dependencies]
 gl_generator = "0.14"
