@@ -17,7 +17,8 @@ use tao::window::{Window, WindowBuilder};
 use tao::platform::unix::*;
 use gdk::GLContext;
 use gtk::prelude::*;
-use gtk::{GLArea, GLAreaBuilder};
+use gtk::GLArea;
+use gtk::builders::GLAreaBuilder;
 
 use std::marker::PhantomData;
 
