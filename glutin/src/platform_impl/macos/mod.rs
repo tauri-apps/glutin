@@ -52,7 +52,7 @@ impl Context {
         pf_reqs: &PixelFormatRequirements,
         gl_attr: &GlAttributes<&Context>,
     ) -> Result<(Window, Self), CreationError> {
-        let transparent = wb.transparent();
+        let transparent = wb.window.transparent;
         let win = wb.build(el)?;
 
         let share_ctx = gl_attr.sharing.map_or(nil, |c| *c.get_id());
