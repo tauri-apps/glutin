@@ -14,6 +14,7 @@ use crate::{
 
 use glutin_glx_sys as ffi;
 
+use raw_window_handle::*;
 use winit::dpi;
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::{Window, WindowBuilder};
@@ -475,19 +476,27 @@ impl Context {
             Some(wb.window.transparent),
         )?;
 
+        // TODO actually use this visual?
         // getting the `visual_infos` (a struct that contains information about
         // the visual to use)
-        let visual_infos = match context {
-            Prototype::Glx(ref p) => *p.get_visual_infos(),
-            Prototype::Egl(ref p) => {
-                utils::get_visual_info_from_xid(&xconn, p.get_native_visual_id() as ffi::VisualID)
-            }
-        };
+        // let visual_infos = match context {
+        //     Prototype::Glx(ref p) => *p.get_visual_infos(),
+        //     Prototype::Egl(ref p) => {
+        //         utils::get_visual_info_from_xid(&xconn, p.get_native_visual_id() as ffi::VisualID)
+        //     }
+        // };
 
         let win =
-            wb.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id).build(el)?;
+            wb
+            //.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id)
+            .build(el)?;
 
-        let xwin = win.xlib_window().unwrap();
+        let xwin = if let RawWindowHandle::Xlib(w) = win.raw_window_handle() {
+            w.window
+        } else {
+            panic!("Cannot get X11 window hadle")
+        };
+
         // finish creating the OpenGL context
         let context = match context {
             Prototype::Glx(ctx) => X11Context::Glx(ctx.finish(xwin)?),
