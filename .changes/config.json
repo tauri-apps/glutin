@@ -4,34 +4,75 @@
     "rust": {
       "version": true,
       "getPublishedVersion": "cargo search ${ pkg.pkg } --limit 1 | sed -nE 's/^[^\"]*\"//; s/\".*//1p' -",
+      "prepublish": [
+        "sudo apt-get update",
+        "sudo apt-get install -y libgtk-3-dev",
+        "cargo install cargo-audit --features=fix",
+        {
+          "command": "cargo generate-lockfile",
+          "dryRunCommand": true,
+          "runFromRoot": true,
+          "pipe": true
+        },
+        {
+          "command": "echo '<details>\n<summary><em><h4>Cargo Audit</h4></em></summary>\n\n```'",
+          "dryRunCommand": true,
+          "pipe": true
+        },
+        {
+          "command": "cargo audit ${ process.env.CARGO_AUDIT_OPTIONS || '' }",
+          "dryRunCommand": true,
+          "runFromRoot": true,
+          "pipe": true
+        },
+        {
+          "command": "echo '```\n\n</details>\n'",
+          "dryRunCommand": true,
+          "pipe": true
+        }
+      ],
       "publish": [
-        "cargo publish"
+        {
+          "command": "cargo package --allow-dirty",
+          "dryRunCommand": true
+        },
+        {
+          "command": "echo '<details>\n<summary><em><h4>Cargo Publish</h4></em></summary>\n\n```'",
+          "dryRunCommand": true,
+          "pipe": true
+        },
+        {
+          "command": "echo \"\\`\\`\\`\"",
+          "dryRunCommand": true,
+          "pipe": true
+        },
+        {
+          "command": "cargo publish --no-verify",
+          "dryRunCommand": "cargo publish --no-verify --dry-run --allow-dirty",
+          "pipe": true
+        },
+        {
+          "command": "echo '```\n\n</details>\n'",
+          "dryRunCommand": true,
+          "pipe": true
+        }
+      ],
+      "postpublish": [
+        "git tag ${ pkg.pkg }-v${ pkgFile.versionMajor } -f",
+        "git tag ${ pkg.pkg }-v${ pkgFile.versionMajor }.${ pkgFile.versionMinor } -f",
+        "git push --tags -f"
+      ],
+      "assets": [
+        {
+          "path": "${ pkg.path }/${ pkg.pkg }-${ pkgFile.version }.crate",
+          "name": "${ pkg.pkg }-${ pkgFile.version }.crate"
+        }
       ]
     }
   },
   "packages": {
     "glutin_tao": {
       "path": "./glutin",
-      "manager": "rust"
-    },
-    "glutin_egl_sys": {
-      "path": "./glutin_egl_sys",
-      "manager": "rust"
-    },
-    "glutin_examples": {
-      "path": "./glutin_examples",
-      "manager": "rust"
-    },
-    "glutin_gles2_sys": {
-      "path": "./glutin_gles2_sys",
-      "manager": "rust"
-    },
-    "glutin_glx_sys": {
-      "path": "./glutin_glx_sys",
-      "manager": "rust"
-    },
-    "glutin_wgl_sys": {
-      "path": "./glutin_wgl_sys",
       "manager": "rust"
     }
   }
