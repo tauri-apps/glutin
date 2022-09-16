@@ -486,8 +486,7 @@ impl Context {
         //     }
         // };
 
-        let win =
-            wb
+        let win = wb
             //.with_x11_visual(&visual_infos as *const _).with_x11_screen(screen_id)
             .build(el)?;
 

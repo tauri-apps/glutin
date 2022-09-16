@@ -1,0 +1,38 @@
+{
+  "gitSiteUrl": "https://github.com/tauri-apps/glutin/",
+  "pkgManagers": {
+    "rust": {
+      "version": true,
+      "getPublishedVersion": "cargo search ${ pkg.pkg } --limit 1 | sed -nE 's/^[^\"]*\"//; s/\".*//1p' -",
+      "publish": [
+        "cargo publish"
+      ]
+    }
+  },
+  "packages": {
+    "glutin_tao": {
+      "path": "./glutin",
+      "manager": "rust"
+    },
+    "glutin_egl_sys": {
+      "path": "./glutin_egl_sys",
+      "manager": "rust"
+    },
+    "glutin_examples": {
+      "path": "./glutin_examples",
+      "manager": "rust"
+    },
+    "glutin_gles2_sys": {
+      "path": "./glutin_gles2_sys",
+      "manager": "rust"
+    },
+    "glutin_glx_sys": {
+      "path": "./glutin_glx_sys",
+      "manager": "rust"
+    },
+    "glutin_wgl_sys": {
+      "path": "./glutin_wgl_sys",
+      "manager": "rust"
+    }
+  }
+}
