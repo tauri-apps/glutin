@@ -9,7 +9,7 @@ readme = "../README.md"
 repository = "https://github.com/rust-windowing/glutin"
 documentation = "https://docs.rs/glutin"
 edition = "2021"
-rust-version = "1.59"
+rust-version = "1.57"
 
 [lib]
 name = "glutin"
