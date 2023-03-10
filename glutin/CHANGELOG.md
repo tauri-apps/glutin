@@ -1,5 +1,10 @@
 # Changelog
 
+## \[0.31.0]
+
+- Update tao to 0.17.
+  - [a77575e](https://github.com/tauri-apps/glutin/commit/a77575e73cabf58039bd3f4deab0960b5b834f1d) Update tao to 0.17 on 2023-03-10
+
 ## \[0.30.1]
 
 - Update tao to 0.15.
