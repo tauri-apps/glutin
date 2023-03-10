@@ -3,7 +3,7 @@ name: version or publish
 on:
   push:
     branches:
-      - '0.30'
+      - '0.31'
 
 jobs:
   version-or-publish:
