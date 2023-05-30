@@ -12,10 +12,10 @@ edition = "2021"
 [features]
 default = ["egl", "glx", "x11", "wayland", "wgl"]
 egl = ["glutin/egl"]
-glx = ["glutin/glx", "glutin/x11", "winit/x11", "x11"]
+glx = ["glutin/glx", "glutin/x11", "x11"]
 wgl = ["glutin/wgl"]
-x11 = ["glutin/x11", "winit/x11"]
-wayland = ["glutin/wayland", "winit/wayland"]
+x11 = ["glutin/x11"]
+wayland = ["glutin/wayland"]
 
 [dependencies]
 winit = { package = "tao", version = "0.18.0", default-features = false }

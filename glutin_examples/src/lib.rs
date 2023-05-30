@@ -3,6 +3,7 @@ use std::num::NonZeroU32;
 use std::ops::Deref;
 
 use winit::event::{Event, WindowEvent};
+use winit::event_loop::ControlFlow;
 use winit::window::WindowBuilder;
 
 use raw_window_handle::HasRawWindowHandle;
@@ -103,9 +104,9 @@ pub fn main(event_loop: winit::event_loop::EventLoop<()>) {
     let mut state = None;
     let mut renderer = None;
     event_loop.run(move |event, window_target, control_flow| {
-        control_flow.set_wait();
+        *control_flow = ControlFlow::Wait;
         match event {
-            Event::Resumed => {
+            Event::Resumed | winit::event::Event::NewEvents(winit::event::StartCause::Init) => {
                 #[cfg(android_platform)]
                 println!("Android window available");
 
@@ -169,7 +170,7 @@ pub fn main(event_loop: winit::event_loop::EventLoop<()>) {
                     }
                 },
                 WindowEvent::CloseRequested => {
-                    control_flow.set_exit();
+                    *control_flow = ControlFlow::Exit;
                 },
                 _ => (),
             },
