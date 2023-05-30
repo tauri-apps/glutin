@@ -16,8 +16,8 @@ use std::error::Error;
 
 use glutin::config::{Config, ConfigTemplateBuilder};
 use glutin::display::{Display, DisplayApiPreference};
-#[cfg(x11_platform)]
-use glutin::platform::x11::X11GlConfigExt;
+// #[cfg(x11_platform)]
+// use glutin::platform::x11::X11GlConfigExt;
 use glutin::prelude::*;
 
 use raw_window_handle::{HasRawDisplayHandle, RawWindowHandle};
@@ -29,10 +29,10 @@ use winit::error::OsError;
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::{Window, WindowBuilder};
 
-#[cfg(glx_backend)]
-use winit::platform::x11::register_xlib_error_hook;
-#[cfg(x11_platform)]
-use winit::platform::x11::WindowBuilderExtX11;
+// #[cfg(glx_backend)]
+// use winit::platform::x11::register_xlib_error_hook;
+// #[cfg(x11_platform)]
+// use winit::platform::x11::WindowBuilderExtX11;
 
 #[cfg(all(not(egl_backend), not(glx_backend), not(wgl_backend), not(cgl_backend)))]
 compile_error!("Please select at least one api backend");
@@ -146,8 +146,8 @@ fn create_display<T>(
     #[cfg(egl_backend)]
     let _preference = DisplayApiPreference::Egl;
 
-    #[cfg(glx_backend)]
-    let _preference = DisplayApiPreference::Glx(Box::new(register_xlib_error_hook));
+    // #[cfg(glx_backend)]
+    // let _preference = DisplayApiPreference::Glx(Box::new(register_xlib_error_hook));
 
     #[cfg(cgl_backend)]
     let _preference = DisplayApiPreference::Cgl;
@@ -155,15 +155,15 @@ fn create_display<T>(
     #[cfg(wgl_backend)]
     let _preference = DisplayApiPreference::Wgl(_raw_window_handle);
 
-    #[cfg(all(egl_backend, glx_backend))]
-    let _preference = match _api_preference {
-        ApiPreference::PreferEgl => {
-            DisplayApiPreference::EglThenGlx(Box::new(register_xlib_error_hook))
-        },
-        ApiPreference::FallbackEgl => {
-            DisplayApiPreference::GlxThenEgl(Box::new(register_xlib_error_hook))
-        },
-    };
+    // #[cfg(all(egl_backend, glx_backend))]
+    // let _preference = match _api_preference {
+    //     ApiPreference::PreferEgl => {
+    //         DisplayApiPreference::EglThenGlx(Box::new(register_xlib_error_hook))
+    //     },
+    //     ApiPreference::FallbackEgl => {
+    //         DisplayApiPreference::GlxThenEgl(Box::new(register_xlib_error_hook))
+    //     },
+    // };
 
     #[cfg(all(wgl_backend, egl_backend))]
     let _preference = match _api_preference {
@@ -190,12 +190,12 @@ pub fn finalize_window<T>(
         builder = builder.with_transparent(false);
     }
 
-    #[cfg(x11_platform)]
-    let builder = if let Some(x11_visual) = gl_config.x11_visual() {
-        builder.with_x11_visual(x11_visual.into_raw())
-    } else {
-        builder
-    };
+    // #[cfg(x11_platform)]
+    // let builder = if let Some(x11_visual) = gl_config.x11_visual() {
+    //     builder.with_x11_visual(x11_visual.into_raw())
+    // } else {
+    //     builder
+    // };
 
     builder.build(window_target)
 }
