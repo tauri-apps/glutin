@@ -1,5 +1,74 @@
 # Unreleased
 
+- Bump MSRV from `1.60` to `1.65`.
+- **Breaking:** `bitflags` which is used as a part of public API was updated to `2.0`.
+- **Breaking:** `.*SurfaceAccessor` traits got removed; their methods now on respective `.*GlContext` traits instead.
+- **Breaking:** `GlContext` trait is now a part of the `prelude`.
+- Fixed lock on SwapBuffers with some GLX drivers.
+
+# Version 0.30.8
+
+- Fixed EGL dereferencing raw window handles on everything but X11 in legacy `Window` and `Pixmap` surface creation.
+- On GLX, fixed startup failure when passing default `Flush` with `KHR_context_flush_control`.
+
+# Version 0.30.7
+
+- Altered specification for `objc2` crate to pull patch update.
+
+# Version 0.30.6
+
+- Fixed handling of `*_base` extensions with EGL.
+
+# Version 0.30.5
+
+- Fixed EGL/GLX display initialization when the provided raw-window-handle has an unknown visual_id.
+- Fixed EGL always returning `None` for `x11_visual()`.
+- Fixed GLX error handling assuming that `XError`'s will arrive like they should on X11.
+- Fixed EGL window/pixmap creation when using legacy path.
+
+# Version 0.30.4
+
+- Fixed EGL display initialization with XcbDisplayHandle.
+- Fixed EGL/GLX `Surface::width` returning the height instead of the width.
+- On GLX, fixed handling of errors not directly requested by glutin.
+- Added `GlConfig::hardware_accelerated` to check if the config is hardware accelerated.
+- Added `GlContext::context_api` to get the `ContextApi` used by the context.
+- Added missing implementations of `Surface::{width,height}` for WGL/CGL
+- Fixed crash when accessing context from the off-thread on macOS.
+- **Clarified that `make_{,not}_current()`, `GlSurface::width()`, `GlSurface::height()`, and `GlSurface::resize()` could block on macOS.**
+
+# Version 0.30.3
+
+- Fixed wrong amount of rects commited in `Surface::swap_buffers_with_damage` with EGL.
+- Added missing `Eq`, `PartialEq`, and `Hash` impls for `surface::Rect`.
+
+# Version 0.30.2
+
+- Fixed robust context creation with EGL.
+- Moved to stable version of `wayland-sys`.
+- Allow offline renderers with CGL.
+- Fixed an error when compiling the EGL backend with only one of Wayland and X11 enabled.
+
+# Version 0.30.1
+
+- Added new `glutin-winit` crate to help bootstrapping new `glutin` with `winit`.
+- Added `EGLDevice` wrappers for EGL.
+- Added EGL dependent api to make a context current without a surface.
+- Added `supports_transparency` on `GlConfig`.
+- On GLX, try all extensions when setting vsync.
+- On WGL, fixed that `Surface::swap_buffers` takes longer with every call caused by frequent calls of the win32 function `HDC GetDC(HWND hWnd)`.
+
+# Version 0.30.0
+
+- **This version of `glutin` has been rewritten from the ground and no longer depends on `winit`, the `raw-window-handle` is now used instead of it.**
+- The Api is now built around `Display`, `Surface`, `Config`, and `Surface`. For more info see crate documentation and examples.
+- **Breaking:** Bump MSRV from `1.57` to `1.60`.
+- The ios support was removed for the lack of maintainance for now. In case there's a need for it, contributions are welcome.
+- The context creation is no longer limited to winit's supported platforms.
+- The underlying Api providers are publically exposed now, so glutin could be used with just e.g. `EGL`.
+- Fixed soundness issues with `Surface` MT safety, since before `EGLSurface` could be sent to a different thread, which is not safe.
+- Fallback to `Surface::swap_buffers` when `Surface::swap_buffers_with_damage` is not supported on `EGL`.
+
 # Version 0.29.1 (2022-08-10)
 
 - Fix build failures when building from crates.io

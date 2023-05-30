@@ -1,12 +1,13 @@
-# glutin -  OpenGL, UTilities and INput
-A low-level library for OpenGL context creation, written in pure Rust.
+# glutin -  OpenGL, UTilities, and INput
+
+A low-level library for OpenGL context creation.
 
 [![](https://img.shields.io/crates/v/glutin.svg)](https://crates.io/crates/glutin)
 [![Docs.rs](https://docs.rs/glutin/badge.svg)](https://docs.rs/glutin)
 
 ```toml
 [dependencies]
-glutin = "0.29.1"
+glutin = "0.30.8"
 ```
 
 ## [Documentation](https://docs.rs/glutin)
@@ -15,15 +16,16 @@ glutin = "0.29.1"
 
 Join us in any of these:
 
-[![Matrix](https://img.shields.io/badge/Matrix-%23rust--windowing%3Amatrix.org-blueviolet.svg)](https://matrix.to/#/#rust-windowing:matrix.org)
+[![Matrix](https://img.shields.io/badge/Matrix-%23winit%3Amatrix.org-blueviolet.svg)](https://matrix.to/#/#winit:matrix.org)
 [![Libera.Chat](https://img.shields.io/badge/libera.chat-%23winit-red.svg)](https://web.libera.chat/#winit)
 
 ## Usage Examples
 
-Warning: these are examples for master. For the latest released version you can
-find them [here](https://github.com/rust-windowing/glutin/releases/tag/v0.29.1).
+**Warning:** These are examples for `master`. You can find examples for
+the latest _released version_ [here](https://github.com/rust-windowing/glutin/releases/latest).
 
-The examples use [gl_generator](https://crates.io/crates/gl_generator) to generate OpenGL bindings.
+The examples use [`gl_generator`](https://crates.io/crates/gl_generator) to
+generate OpenGL bindings.
 
 ### Try it!
 
@@ -33,32 +35,32 @@ cd glutin
 cargo run --example window
 ```
 
-## Common issues
-
-Please refer to [ISSUES.md.](ISSUES.md)
-
 ### Usage
 
-Glutin is an OpenGL context creation library and doesn't directly provide OpenGL bindings for you.
+Glutin is an OpenGL context creation library, and doesn't directly provide
+OpenGL bindings for you.
 
-For examples, please look [here.](https://github.com/rust-windowing/glutin/tree/master/glutin_examples)
+For examples, please look [here](https://github.com/rust-windowing/glutin/tree/master/glutin_examples).
 
-Note that glutin aims at being a low-level brick in your rendering infrastructure. You are encouraged to write another layer of abstraction between glutin and your application.
+Note that glutin aims at being a low-level brick in your rendering
+infrastructure. You are encouraged to write another layer of abstraction
+between glutin and your application.
 
-Glutin is only officially supported on the latest stable version of the Rust compiler.
+The minimum Rust version target by glutin is `1.65.0`.
 
 ## Platform-specific notes
 
 ### Android
 
-To compile the examples for android, you have to use the `cargo apk` utility.
+Be sure to handle Android's lifecycle correctly when using a `winit` window
+by only creating a GL surface after `winit` raises `Event::Resumed`, and
+destroy it again upon receiving `Event::Suspended`. See this in action in the
+[`android.rs` example](./glutin_examples/examples/android.rs).
 
-See [`cargo-apk` in the `android-ndk-rs` repository](https://github.com/rust-windowing/android-ndk-rs/tree/master/cargo-apk) for instructions.
+To compile and run the Android example on your device,
+install [`cargo-apk`](https://crates.io/crates/cargo-apk)
+and start the app using:
 
-### X11
-
-The plan is that glutin tries to dynamically link-to and use Wayland w/EGL if possible. If it doesn't work, it will try Xlib w/GLX follow by Xlib w/EGL instead. This is work-in-progress.
-
-### Wayland
-
-Due to an issue with how Mesa and Wayland play together, all shared contexts must use the same events pool as each other.
+```console
+$ cargo apk r -p glutin_examples --example android
+```
