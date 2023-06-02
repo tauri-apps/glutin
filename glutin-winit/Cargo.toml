@@ -1,9 +1,9 @@
 [package]
-name = "glutin-winit"
+name = "glutin-tao"
 version = "0.3.0"
 authors = ["Kirill Chibisov <contact@kchibisov.com>"]
-description = "Glutin bootstrapping helpers with winit"
-keywords = ["windowing", "opengl", "winit"]
+description = "Glutin bootstrapping helpers with tao"
+keywords = ["windowing", "opengl", "tao"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/rust-windowing/glutin"
