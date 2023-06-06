@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "glutin_tao",
+    "glutin",
     "glutin_examples",
 ]
