@@ -16,7 +16,7 @@ pub trait GlWindow {
     ///
     /// # Example
     /// ```no_run
-    /// use glutin_winit::GlWindow;
+    /// use glutin_tao::GlWindow;
     /// # let winit_window: winit::window::Window = unimplemented!();
     ///
     /// let attrs = winit_window.build_surface_attributes(<_>::default());
@@ -32,7 +32,7 @@ pub trait GlWindow {
     ///
     /// # Example
     /// ```no_run
-    /// use glutin_winit::GlWindow;
+    /// use glutin_tao::GlWindow;
     /// # use glutin::surface::{Surface, WindowSurface};
     /// # let winit_window: winit::window::Window = unimplemented!();
     /// # let (gl_surface, gl_context): (Surface<WindowSurface>, _) = unimplemented!();

@@ -14,7 +14,7 @@ use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
 use glutin::surface::SwapInterval;
 
-use glutin_winit::{self, DisplayBuilder, GlWindow};
+use glutin_tao::{self, DisplayBuilder, GlWindow};
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -112,7 +112,7 @@ pub fn main(event_loop: winit::event_loop::EventLoop<()>) {
 
                 let window = window.take().unwrap_or_else(|| {
                     let window_builder = WindowBuilder::new().with_transparent(true);
-                    glutin_winit::finalize_window(window_target, window_builder, &gl_config)
+                    glutin_tao::finalize_window(window_target, window_builder, &gl_config)
                         .unwrap()
                 });
 

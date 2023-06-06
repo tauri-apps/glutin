@@ -1,10 +1,5 @@
 [workspace]
 members = [
-    "glutin",
-    "glutin-winit",
+    "glutin_tao",
     "glutin_examples",
-    "glutin_egl_sys",
-    "glutin_glx_sys",
-    "glutin_wgl_sys",
-    "glutin_gles2_sys",
 ]

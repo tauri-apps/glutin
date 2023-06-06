@@ -12,16 +12,16 @@ publish = false
 
 [features]
 default = ["egl", "glx", "x11", "wayland", "wgl"]
-egl = ["glutin-winit/egl", "png"]
-glx = ["glutin-winit/glx"]
-wgl = ["glutin-winit/wgl"]
-x11 = ["glutin-winit/x11"]
-wayland = ["glutin-winit/wayland"]
+egl = ["glutin_tao/egl", "png"]
+glx = ["glutin_tao/glx"]
+wgl = ["glutin_tao/wgl"]
+x11 = ["glutin_tao/x11"]
+wayland = ["glutin_tao/wayland"]
 
 [dependencies]
-glutin = { path = "../glutin", default-features = false }
+glutin = { version = "0.30.8", default-features = false }
 winit = { package = "tao", version = "0.18.0", default-features = false }
-glutin-winit = { package = "glutin-tao", path = "../glutin-winit", default-features = false }
+glutin_tao = { path = "../glutin_tao", default-features = false }
 raw-window-handle = "0.5.0"
 png = { version = "0.17.6", optional = true }
 
