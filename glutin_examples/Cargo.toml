@@ -11,9 +11,8 @@ edition = "2021"
 publish = false
 
 [features]
-default = ["egl", "glx", "x11", "wayland", "wgl"]
+default = ["egl", "x11", "wayland", "wgl"]
 egl = ["glutin_tao/egl", "png"]
-glx = ["glutin_tao/glx"]
 wgl = ["glutin_tao/wgl"]
 x11 = ["glutin_tao/x11"]
 wayland = ["glutin_tao/wayland"]
