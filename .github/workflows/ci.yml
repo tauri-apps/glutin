@@ -104,7 +104,7 @@ jobs:
 
     - name: Check documentation
       shell: bash
-      run: cd glutin_tao && cargo doc --no-deps --target ${{ matrix.platform.target }} $OPTIONS --features $FEATURES --document-private-items
+      run: cd glutin && cargo doc --no-deps --target ${{ matrix.platform.target }} $OPTIONS --features $FEATURES --document-private-items
 
     - name: Lint with clippy
       shell: bash
