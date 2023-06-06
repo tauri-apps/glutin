@@ -1,6 +1,7 @@
-# glutin -  OpenGL, UTilities, and INput
+# glutin_tao
 
-A low-level library for OpenGL context creation.
+Glutin is a low-level library for OpenGL context creation, glutin_tao uses tao instead of winit.
+
 
 [![](https://img.shields.io/crates/v/glutin.svg)](https://crates.io/crates/glutin)
 [![Docs.rs](https://docs.rs/glutin/badge.svg)](https://docs.rs/glutin)
@@ -10,27 +11,12 @@ A low-level library for OpenGL context creation.
 glutin = "0.30.8"
 ```
 
-## [Documentation](https://docs.rs/glutin)
-
-## Contact Us
-
-Join us in any of these:
-
-[![Matrix](https://img.shields.io/badge/Matrix-%23winit%3Amatrix.org-blueviolet.svg)](https://matrix.to/#/#winit:matrix.org)
-[![Libera.Chat](https://img.shields.io/badge/libera.chat-%23winit-red.svg)](https://web.libera.chat/#winit)
-
-## Usage Examples
-
-**Warning:** These are examples for `master`. You can find examples for
-the latest _released version_ [here](https://github.com/rust-windowing/glutin/releases/latest).
-
-The examples use [`gl_generator`](https://crates.io/crates/gl_generator) to
-generate OpenGL bindings.
+## [Documentation](https://docs.rs/glutin_tao)
 
 ### Try it!
 
 ```bash
-git clone https://github.com/rust-windowing/glutin
+git clone https://github.com/tauri-apps/glutin
 cd glutin
 cargo run --example window
 ```
@@ -50,17 +36,6 @@ The minimum Rust version target by glutin is `1.65.0`.
 
 ## Platform-specific notes
 
-### Android
+### Wayland
 
-Be sure to handle Android's lifecycle correctly when using a `winit` window
-by only creating a GL surface after `winit` raises `Event::Resumed`, and
-destroy it again upon receiving `Event::Suspended`. See this in action in the
-[`android.rs` example](./glutin_examples/examples/android.rs).
-
-To compile and run the Android example on your device,
-install [`cargo-apk`](https://crates.io/crates/cargo-apk)
-and start the app using:
-
-```console
-$ cargo apk r -p glutin_examples --example android
-```
+Wayland is currently unsupported.
