@@ -29,9 +29,5 @@ gl_generator = "0.14"
 cfg_aliases = "0.1.1"
 
 [[example]]
-name = "android"
-crate-type = ["cdylib"]
-
-[[example]]
 name = "egl_device"
 required-features = ["egl"]
