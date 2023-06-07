@@ -1,19 +1,33 @@
 [package]
 name = "glutin_examples"
-version = "0.1.2"
-authors = ["The glutin contributors", "Hal Gentz <zegentzy@protonmail.com>"]
+version = "0.1.3"
+authors = ["Kirill Chibisov <contact@kchibisov.com>"]
 description = "Examples for glutin"
 repository = "https://github.com/rust-windowing/glutin"
 license = "Apache-2.0"
 readme = "../README.md"
-build = "build.rs"
-edition = "2018"
+rust-version = "1.65.0"
+edition = "2021"
 publish = false
 
+[features]
+default = ["egl", "x11", "wayland", "wgl"]
+egl = ["glutin_tao/egl", "png"]
+wgl = ["glutin_tao/wgl"]
+x11 = ["glutin_tao/x11"]
+wayland = ["glutin_tao/wayland"]
+
 [dependencies]
-glutin = { path = "../glutin" }
-takeable-option = "0.4"
-image = "0.24"
+glutin = { version = "0.30.8", default-features = false }
+winit = { package = "tao", version = "0.18.0", default-features = false }
+glutin_tao = { path = "../glutin", default-features = false }
+raw-window-handle = "0.5.0"
+png = { version = "0.17.6", optional = true }
 
 [build-dependencies]
 gl_generator = "0.14"
+cfg_aliases = "0.1.1"
+
+[[example]]
+name = "egl_device"
+required-features = ["egl"]
