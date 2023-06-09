@@ -1,5 +1,9 @@
 # Unreleased
 
+## \[0.33.0]
+
+- [`6027820`](https://github.com/tauri-apps/glutin/commit/6027820de63f3615ebf8c024564583cad25dbca6) Update glutin_tao version to 0.32.0 to bump to 0.33.0 properly.
+
 ## \[0.4.0]
 
 - [`0eeba77`](https://github.com/tauri-apps/glutin/commit/0eeba77ad727e3d4a40291c670b023857654be31) Update glutin to 0.30.8.

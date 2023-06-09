@@ -1,6 +1,6 @@
 [package]
 name = "glutin_tao"
-version = "0.32.0"
+version = "0.33.0"
 authors = [ "Kirill Chibisov <contact@kchibisov.com>" ]
 description = "Glutin bootstrapping helpers with tao"
 keywords = [ "windowing", "opengl", "tao" ]
