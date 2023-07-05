@@ -19,7 +19,7 @@ wayland = ["glutin_tao/wayland"]
 
 [dependencies]
 glutin = { version = "0.30.8", default-features = false }
-winit = { package = "tao", version = "0.18.0", default-features = false }
+winit = { package = "tao", version = "0.19.0", default-features = false }
 glutin_tao = { path = "../glutin", default-features = false }
 raw-window-handle = "0.5.0"
 png = { version = "0.17.6", optional = true }
