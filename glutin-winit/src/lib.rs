@@ -198,7 +198,7 @@ pub fn finalize_window(
 ) -> Result<Window, OsError> {
     // Disable transparency if the end config doesn't support it.
     if gl_config.supports_transparency() == Some(false) {
-        attributes = attributes.with_transparent(false);
+        attributes.transparent = false;
     }
 
     #[cfg(x11_platform)]

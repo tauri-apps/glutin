@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "glutin",
     "glutin-winit",
-    "glutin_examples",
+    #"glutin_examples",
     "glutin_egl_sys",
     "glutin_glx_sys",
     "glutin_wgl_sys",
